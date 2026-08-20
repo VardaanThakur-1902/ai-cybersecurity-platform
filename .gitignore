@@ -24,3 +24,10 @@ dist/
 # OS
 .DS_Store
 Thumbs.db
+
+venv/
+__pycache__/
+.env
+*.db
+*.sqlite
+*.sqlite3
