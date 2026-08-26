@@ -1,5 +1,9 @@
 from sqlmodel import SQLModel, Session, create_engine
 
+from models.security_event import SecurityEvent
+from models.security_alert import SecurityAlert
+
+
 DATABASE_URL = "sqlite:///cybersecurity.db"
 
 engine = create_engine(

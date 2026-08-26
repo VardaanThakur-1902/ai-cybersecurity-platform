@@ -5,6 +5,7 @@ from sqlmodel import Session, select
 from models.security_event import SecurityEvent
 from detection.rule_engine import analyze_event
 from services.behavior_service import analyze_ip_behavior
+from services.alert_service import create_alert
 
 
 def create_event(
@@ -15,8 +16,7 @@ def create_event(
     if isinstance(event.timestamp, str):
         event.timestamp = datetime.fromisoformat(event.timestamp)
 
-    # First save the event so it can participate
-    # in behavioral analysis.
+    # Save event first so it gets an ID
     session.add(event)
     session.commit()
     session.refresh(event)
@@ -30,7 +30,7 @@ def create_event(
         event.source_ip
     )
 
-    # Combine individual and behavioral scores
+    # Combine scores
     final_score = (
         detection_result["threat_score"]
         + behavior_result["behavior_score"]
@@ -51,14 +51,10 @@ def create_event(
     else:
         final_level = "LOW"
 
-    # Store detection results
+    # Store detection result
     event.threat_score = final_score
-
     event.threat_level = final_level
-
-    event.threat_type = detection_result[
-        "threat_type"
-    ]
+    event.threat_type = detection_result["threat_type"]
 
     reasons = detection_result["reasons"].copy()
 
@@ -69,12 +65,15 @@ def create_event(
         )
 
     event.detection_reasons = "; ".join(reasons)
-
     event.detected_at = datetime.utcnow()
 
     session.add(event)
     session.commit()
     session.refresh(event)
+
+    # Generate alert for HIGH / CRITICAL threats
+    if event.threat_level in ["HIGH", "CRITICAL"]:
+        create_alert(session, event)
 
     return event
 
