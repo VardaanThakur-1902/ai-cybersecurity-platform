@@ -6,6 +6,7 @@ from sqlmodel import Field, SQLModel
 class SecurityEvent(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
+    # Event information
     timestamp: datetime
 
     source_ip: str
@@ -21,4 +22,14 @@ class SecurityEvent(SQLModel, table=True):
 
     message: str
 
+    # Original label if available
     is_malicious: bool | None = None
+
+    # Detection results
+    threat_score: int = 0
+    threat_level: str = "LOW"
+    threat_type: str = "NORMAL"
+    detection_reasons: str | None = None
+
+    # Time when detection was performed
+    detected_at: datetime | None = None
