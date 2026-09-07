@@ -31,3 +31,9 @@ __pycache__/
 *.db
 *.sqlite
 *.sqlite3
+
+data/raw/
+data/processed/
+ml/model/
+*.joblib
+*.pkl

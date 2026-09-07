@@ -4,6 +4,7 @@ from database.database import create_db_and_tables
 from api.logs import router as logs_router
 from api.detection import router as detection_router
 from api.alerts import router as alerts_router
+from api.ml import router as ml_router
 
 
 app = FastAPI(
@@ -36,3 +37,4 @@ def health_check():
 app.include_router(logs_router)
 app.include_router(detection_router)
 app.include_router(alerts_router)
+app.include_router(ml_router)
