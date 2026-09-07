@@ -7,6 +7,9 @@ from detection.rule_engine import analyze_event
 from services.behavior_service import analyze_ip_behavior
 from services.alert_service import create_alert
 
+from ml.feature_engineering import create_feature_vector
+from ml.predict import predict_threat
+
 
 def create_event(
     session: Session,
@@ -30,11 +33,34 @@ def create_event(
         event.source_ip
     )
 
+    # -----------------------------------------
+    # ML threat prediction
+    # -----------------------------------------
+
+    features = create_feature_vector(event, session)
+
+    ml_result = predict_threat(features)
+
+    ml_prediction = ml_result["prediction"]
+    ml_probability = ml_result["attack_probability"]
+
     # Combine scores
+        # -----------------------------------------
+    # Combine rule + behavior + ML scores
+    # -----------------------------------------
+
+    rule_score = detection_result["threat_score"]
+    behavior_score = behavior_result["behavior_score"]
+
+    ml_score = int(ml_probability * 40)
+
     final_score = (
-        detection_result["threat_score"]
-        + behavior_result["behavior_score"]
+        rule_score
+        + behavior_score
+        + ml_score
     )
+
+    final_score = min(final_score, 100)
 
     final_score = min(final_score, 100)
 
@@ -63,6 +89,13 @@ def create_event(
             f"{behavior_result['suspicious_event_count']} "
             f"suspicious events detected from this IP"
         )
+
+        reasons.append(
+        f"ML attack probability: {ml_probability:.2f}"
+    )
+
+    if ml_prediction == 1:
+        reasons.append("ML model classified event as suspicious")
 
     event.detection_reasons = "; ".join(reasons)
     event.detected_at = datetime.utcnow()
