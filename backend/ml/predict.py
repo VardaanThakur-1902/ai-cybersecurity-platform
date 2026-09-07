@@ -1,63 +1,30 @@
-from pathlib import Path
-
+import os
 import joblib
-import pandas as pd
+
+from ml.feature_engineering import FEATURE_NAMES
 
 
-MODEL_PATH = (
-    Path(__file__).resolve().parent
-    / "model"
-    / "threat_detector.joblib"
-)
-
-
-FEATURES = [
-    "duration",
-    "source_bytes",
-    "destination_bytes",
-    "source_port",
-    "destination_port",
-    "failed_attempts",
-    "packet_count"
-]
+MODEL_PATH = "ml/model/threat_detector.joblib"
 
 
 model = joblib.load(MODEL_PATH)
 
 
-def predict_threat(
-    duration: float,
-    source_bytes: float,
-    destination_bytes: float,
-    source_port: int,
-    destination_port: int,
-    failed_attempts: int,
-    packet_count: int
-) -> dict:
+def predict_threat(features: dict):
 
-    data = pd.DataFrame([{
-        "duration": duration,
-        "source_bytes": source_bytes,
-        "destination_bytes": destination_bytes,
-        "source_port": source_port,
-        "destination_port": destination_port,
-        "failed_attempts": failed_attempts,
-        "packet_count": packet_count
-    }])
+    feature_vector = [
+        features[name]
+        for name in FEATURE_NAMES
+    ]
 
-    prediction = model.predict(data)[0]
+    prediction = model.predict([feature_vector])[0]
 
-    probabilities = model.predict_proba(data)[0]
+    probabilities = model.predict_proba([feature_vector])[0]
 
     attack_probability = probabilities[1]
 
-    if prediction == 1:
-        label = "attack"
-    else:
-        label = "normal"
-
     return {
-        "prediction": label,
+        "prediction": int(prediction),
         "attack_probability": round(
             float(attack_probability),
             4

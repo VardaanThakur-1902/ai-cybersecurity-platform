@@ -1,105 +1,119 @@
-from pathlib import Path
-
+import os
 import joblib
 import pandas as pd
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, accuracy_score
+from sklearn.metrics import accuracy_score, classification_report
 
 
-# Project paths
-BASE_DIR = Path(__file__).resolve().parents[2]
-
-DATA_PATH = BASE_DIR / "data" / "sample_ml_data.csv"
-
-MODEL_DIR = Path(__file__).resolve().parent / "model"
-MODEL_PATH = MODEL_DIR / "threat_detector.joblib"
+MODEL_DIR = "ml/model"
+MODEL_PATH = os.path.join(MODEL_DIR, "threat_detector.joblib")
 
 
-# Load dataset
-df = pd.read_csv(DATA_PATH)
+# --------------------------------------------------
+# Create training data
+# --------------------------------------------------
 
-print("Dataset loaded")
-print(f"Rows: {len(df)}")
-print(f"Columns: {len(df.columns)}")
+data = [
+    # source_port, destination_port, protocol, severity,
+    # event_type, is_ssh, is_http, is_suspicious_port,
+    # is_failed_login, is_port_scan, is_malware,
+    # suspicious_event_count, behavior_score, label
 
-
-# Features
-features = [
-    "duration",
-    "source_bytes",
-    "destination_bytes",
-    "source_port",
-    "destination_port",
-    "failed_attempts",
-    "packet_count"
+    [12345, 80, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+    [12346, 443, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+    [12347, 8080, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 10, 0],
+    [12348, 22, 1, 2, 2, 1, 0, 0, 1, 0, 0, 3, 20, 1],
+    [12349, 22, 1, 3, 2, 1, 0, 0, 1, 0, 0, 5, 30, 1],
+    [12350, 23, 1, 4, 6, 0, 0, 1, 0, 0, 0, 10, 40, 1],
+    [12351, 445, 1, 4, 4, 0, 0, 1, 0, 0, 1, 10, 40, 1],
+    [12352, 3389, 1, 4, 4, 0, 0, 1, 0, 0, 1, 5, 30, 1],
+    [12353, 21, 1, 3, 5, 0, 0, 1, 0, 0, 1, 3, 20, 1],
+    [12354, 80, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+    [12355, 443, 2, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+    [12356, 22, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+    [12357, 22, 1, 2, 1, 1, 0, 0, 0, 0, 0, 1, 10, 0],
+    [12358, 22, 1, 4, 2, 1, 0, 0, 1, 1, 0, 5, 30, 1],
+    [12359, 445, 1, 4, 4, 0, 0, 1, 0, 0, 1, 10, 40, 1],
+    [12360, 80, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+    [12361, 443, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [12362, 3389, 1, 3, 6, 0, 0, 1, 0, 0, 0, 3, 20, 1],
+    [12363, 23, 1, 4, 6, 0, 0, 1, 0, 0, 0, 5, 30, 1],
+    [12364, 22, 1, 2, 2, 1, 0, 0, 1, 0, 0, 3, 20, 1],
 ]
 
-X = df[features]
 
-# Target
+FEATURE_NAMES = [
+    "source_port",
+    "destination_port",
+    "protocol",
+    "severity",
+    "event_type",
+    "is_ssh",
+    "is_http",
+    "is_suspicious_port",
+    "is_failed_login",
+    "is_port_scan",
+    "is_malware",
+    "suspicious_event_count",
+    "behavior_score",
+]
+
+
+columns = FEATURE_NAMES + ["label"]
+
+df = pd.DataFrame(data, columns=columns)
+
+X = df[FEATURE_NAMES]
 y = df["label"]
 
 
-# Convert labels to numbers
-y = y.map({
-    "normal": 0,
-    "attack": 1
-})
+# --------------------------------------------------
+# Train / test split
+# --------------------------------------------------
 
-
-# Split dataset
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
-    test_size=0.3,
+    test_size=0.25,
     random_state=42,
     stratify=y
 )
 
 
-# Create model
+# --------------------------------------------------
+# Train Random Forest
+# --------------------------------------------------
+
 model = RandomForestClassifier(
     n_estimators=100,
     random_state=42
 )
 
-
-# Train
 model.fit(X_train, y_train)
 
 
+# --------------------------------------------------
 # Evaluate
+# --------------------------------------------------
+
 predictions = model.predict(X_test)
 
-accuracy = accuracy_score(
-    y_test,
-    predictions
-)
+accuracy = accuracy_score(y_test, predictions)
 
-print(f"\nAccuracy: {accuracy:.2f}")
+print("\nModel Accuracy:", accuracy)
 
 print("\nClassification Report:")
-print(
-    classification_report(
-        y_test,
-        predictions,
-        target_names=["normal", "attack"]
-    )
-)
+print(classification_report(y_test, predictions))
 
 
+# --------------------------------------------------
 # Save model
-MODEL_DIR.mkdir(
-    parents=True,
-    exist_ok=True
-)
+# --------------------------------------------------
 
-joblib.dump(
-    model,
-    MODEL_PATH
-)
+os.makedirs(MODEL_DIR, exist_ok=True)
 
-print(f"\nModel saved to:")
-print(MODEL_PATH)
+joblib.dump(model, MODEL_PATH)
+
+print(f"\nModel saved to: {MODEL_PATH}")
