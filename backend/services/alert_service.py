@@ -2,6 +2,7 @@ from sqlmodel import Session, select
 
 from models.security_alert import SecurityAlert
 from models.security_event import SecurityEvent
+from models.network_flow import NetworkFlow
 
 
 def create_alert(
@@ -39,3 +40,31 @@ def get_alerts(
     )
 
     return list(session.exec(statement))
+
+
+def create_network_flow_alert(
+    session,
+    flow: NetworkFlow
+) -> SecurityAlert:
+
+    alert = SecurityAlert(
+        event_id=None,
+        source_ip=flow.source_ip,
+        threat_type=flow.threat_type,
+        threat_level=flow.threat_level,
+        threat_score=flow.threat_score,
+        message=(
+            f"Network threat detected from "
+            f"{flow.source_ip} to "
+            f"{flow.destination_ip}. "
+            f"ML attack probability: "
+            f"{flow.attack_probability:.2f}"
+        ),
+        is_acknowledged=False
+    )
+
+    session.add(alert)
+    session.commit()
+    session.refresh(alert)
+
+    return alert

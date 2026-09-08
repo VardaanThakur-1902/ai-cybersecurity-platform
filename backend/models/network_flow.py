@@ -46,3 +46,8 @@ class NetworkFlow(SQLModel, table=True):
 
     ml_prediction: int | None = None
     attack_probability: float | None = None
+
+    threat_score: int = 0
+    threat_level: str = "LOW"
+    threat_type: str = "NETWORK_ANOMALY"
+    detection_reasons: str | None = None

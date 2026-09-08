@@ -6,8 +6,8 @@ from sqlmodel import Field, SQLModel
 class SecurityAlert(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
-    event_id: int
-
+    event_id: int | None = None
+    
     source_ip: str
 
     threat_type: str
