@@ -5,6 +5,7 @@ from api.logs import router as logs_router
 from api.detection import router as detection_router
 from api.alerts import router as alerts_router
 from api.ml import router as ml_router
+from api.network_flows import router as network_flows_router
 
 
 app = FastAPI(
@@ -38,3 +39,4 @@ app.include_router(logs_router)
 app.include_router(detection_router)
 app.include_router(alerts_router)
 app.include_router(ml_router)
+app.include_router(network_flows_router)

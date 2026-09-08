@@ -2,7 +2,7 @@ from sqlmodel import SQLModel, Session, create_engine
 
 from models.security_event import SecurityEvent
 from models.security_alert import SecurityAlert
-
+from models.network_flow import NetworkFlow
 
 DATABASE_URL = "sqlite:///cybersecurity.db"
 
