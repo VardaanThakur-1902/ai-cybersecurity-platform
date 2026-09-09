@@ -6,7 +6,9 @@ from api.detection import router as detection_router
 from api.alerts import router as alerts_router
 from api.ml import router as ml_router
 from api.network_flows import router as network_flows_router
-
+from api.stats import router as stats_router
+from api.analytics import router as analytics_router
+from api.dashboard import router as dashboard_router
 
 app = FastAPI(
     title="AI-Powered Cybersecurity Platform",
@@ -40,3 +42,6 @@ app.include_router(detection_router)
 app.include_router(alerts_router)
 app.include_router(ml_router)
 app.include_router(network_flows_router)
+app.include_router(stats_router)
+app.include_router(analytics_router)
+app.include_router(dashboard_router)

@@ -137,10 +137,39 @@ def create_network_flow(
 
 @router.get("/")
 def get_network_flows(
+    skip: int = 0,
+    limit: int = 50,
+    source_ip: str | None = None,
+    prediction: int | None = None,
+    threat_level: str | None = None,
     session: Session = Depends(get_session)
 ):
     statement = select(NetworkFlow)
 
-    return list(
-        session.exec(statement)
-    )
+    if source_ip:
+        statement = statement.where(
+            NetworkFlow.source_ip == source_ip
+        )
+
+    if prediction is not None:
+        statement = statement.where(
+            NetworkFlow.ml_prediction == prediction
+        )
+
+    if threat_level:
+        statement = statement.where(
+            NetworkFlow.threat_level == threat_level.upper()
+        )
+
+    all_results = list(session.exec(statement))
+
+    total = len(all_results)
+
+    items = all_results[skip:skip + limit]
+
+    return {
+        "items": items,
+        "total": total,
+        "skip": skip,
+        "limit": limit
+    }
