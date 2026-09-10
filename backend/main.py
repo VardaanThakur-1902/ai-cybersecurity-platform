@@ -9,11 +9,23 @@ from api.network_flows import router as network_flows_router
 from api.stats import router as stats_router
 from api.analytics import router as analytics_router
 from api.dashboard import router as dashboard_router
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="AI-Powered Cybersecurity Platform",
     description="AI-powered cybersecurity threat detection and analysis platform",
     version="0.2.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
