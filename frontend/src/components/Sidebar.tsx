@@ -1,31 +1,53 @@
+import { NavLink } from "react-router-dom";
+
 export default function Sidebar() {
   return (
     <aside className="sidebar">
+
       <div className="logo">
-        🛡️ CyberGuard
+        🛡️ AI CyberGuard
+        <span>Threat Detection</span>
       </div>
 
       <nav>
-        <a className="nav-item active">
+
+        <NavLink
+          to="/"
+          className="nav-item"
+        >
           📊 Dashboard
-        </a>
+        </NavLink>
 
-        <a className="nav-item">
+        <NavLink
+          to="/alerts"
+          className="nav-item"
+        >
           🚨 Alerts
-        </a>
+        </NavLink>
 
-        <a className="nav-item">
+        <NavLink
+          to="/network-flows"
+          className="nav-item"
+        >
           🌐 Network Flows
-        </a>
+        </NavLink>
 
-        <a className="nav-item">
+        <NavLink
+          to="/security-logs"
+          className="nav-item"
+        >
           📋 Security Logs
-        </a>
+        </NavLink>
 
-        <a className="nav-item">
+        <NavLink
+          to="/ml-detection"
+          className="nav-item"
+        >
           🤖 ML Detection
-        </a>
+        </NavLink>
+
       </nav>
+
     </aside>
   );
 }

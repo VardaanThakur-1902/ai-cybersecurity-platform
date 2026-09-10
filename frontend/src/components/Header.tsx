@@ -1,4 +1,16 @@
+import { useEffect, useState } from "react";
+
 export default function Header() {
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <header className="header">
 
@@ -10,10 +22,17 @@ export default function Header() {
         </p>
       </div>
 
-      <div className="status">
-        <span className="status-dot"></span>
+      <div className="header-status">
 
-        Live Monitoring
+        <div className="status">
+          <span className="status-dot"></span>
+          Live Monitoring
+        </div>
+
+        <div className="current-time">
+          {time.toLocaleTimeString()}
+        </div>
+
       </div>
 
     </header>

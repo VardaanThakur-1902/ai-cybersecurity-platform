@@ -1,22 +1,64 @@
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
+
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
+
 import Dashboard from "./pages/Dashboard";
+import Alerts from "./pages/Alerts";
+import NetworkFlows from "./pages/NetworkFlows";
+import SecurityLogs from "./pages/SecurityLogs";
+import MLDetection from "./pages/MLDDetection";
 
 function App() {
   return (
-    <div className="app">
+    <BrowserRouter>
 
-      <Sidebar />
+      <div className="app">
 
-      <main className="main-content">
+        <Sidebar />
 
-        <Header />
+        <main className="main-content">
 
-        <Dashboard />
+          <Header />
 
-      </main>
+          <Routes>
 
-    </div>
+            <Route
+              path="/"
+              element={<Dashboard />}
+            />
+
+            <Route
+              path="/alerts"
+              element={<Alerts />}
+            />
+
+            <Route
+              path="/network-flows"
+              element={<NetworkFlows />}
+            />
+
+            <Route
+              path="/security-logs"
+              element={<SecurityLogs />}
+            />
+
+            <Route
+              path="/ml-detection"
+              element={<MLDetection />}
+            />
+
+          </Routes>
+
+        </main>
+
+      </div>
+
+    </BrowserRouter>
   );
 }
 
